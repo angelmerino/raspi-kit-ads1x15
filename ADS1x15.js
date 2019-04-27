@@ -450,7 +450,7 @@ class ADS1x15 {
             // Set low threshold
             (next) => {
                 const bytes = this._getThresholdValueBytes(low);
-                this.i2c.readI2cBlock(this.address, ADS1015_REG_POINTER_LOWTHRESH, 2, Buffer.from(bytes), (err) => {
+                this.i2c.writeI2cBlock(this.address, ADS1015_REG_POINTER_LOWTHRESH, 2, Buffer.from(bytes), (err) => {
                     /* istanbul ignore if: i2c communication issues out of scope */
                     if (err) {
                         next(new Error('Failed to write low threshold register to ADS1x15:' + err.toString()));
@@ -470,7 +470,8 @@ class ADS1x15 {
      * @private
      */
     _getLastResult(pga, callback) {
-        this.i2c.readI2cBlock(this.address, ADS1015_REG_POINTER_CONVERT, 2, Buffer.from(bytes), (err, bytes) => {
+        const bytes = Buffer.alloc(2)
+        this.i2c.readI2cBlock(this.address, ADS1015_REG_POINTER_CONVERT, 2, Buffer.from(bytes), (err) => {
             /* istanbul ignore if: i2c communication issues out of scope */
             if (err) {
                 // noinspection JSCheckFunctionSignatures
