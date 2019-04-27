@@ -471,7 +471,7 @@ class ADS1x15 {
      */
     _getLastResult(pga, callback) {
         const bytes = Buffer.alloc(2)
-        this.i2c.readI2cBlock(this.address, ADS1015_REG_POINTER_CONVERT, 2, Buffer.from(bytes), (err) => {
+        this.i2c.readI2cBlock(this.address, ADS1015_REG_POINTER_CONVERT, 2, bytes, (err) => {
             /* istanbul ignore if: i2c communication issues out of scope */
             if (err) {
                 // noinspection JSCheckFunctionSignatures
