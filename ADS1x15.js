@@ -147,8 +147,9 @@ class ADS1x15 {
      */
     _getI2CInterface() {
         // noinspection NpmUsedModulesInstalled
-        const I2C = require('raspi-i2c').I2C;
-        return new I2C();
+        const i2c = require('i2c-bus');
+        i2c.openSync(1);
+        return i2c
     }
 
     /**
@@ -385,7 +386,7 @@ class ADS1x15 {
      */
     _writeConfigRegister(config, callback) {
         const bytes = [(config >> 8) & 0xFF, config & 0xFF];
-        this.i2c.write(this.address, ADS1015_REG_POINTER_CONFIG, Buffer.from(bytes), (err) => {
+        this.i2c.writeI2cBlock(this.address, ADS1015_REG_POINTER_CONFIG, 2, Buffer.from(bytes), (err) => {
             /* istanbul ignore if: i2c communication issues out of scope */
             if (err) {
                 callback(new Error('Failed to write config register to ADS1x15:' + err.toString()));
@@ -436,7 +437,7 @@ class ADS1x15 {
             // Set high threshold
             (next) => {
                 const bytes = this._getThresholdValueBytes(high);
-                this.i2c.write(this.address, ADS1015_REG_POINTER_HITHRESH, Buffer.from(bytes), (err) => {
+                this.i2c.writeI2cBlock(this.address, ADS1015_REG_POINTER_HITHRESH, 2, Buffer.from(bytes), (err) => {
                     /* istanbul ignore if: i2c communication issues out of scope */
                     if (err) {
                         next(new Error('Failed to write high threshold register to ADS1x15:' + err.toString()));
@@ -449,7 +450,7 @@ class ADS1x15 {
             // Set low threshold
             (next) => {
                 const bytes = this._getThresholdValueBytes(low);
-                this.i2c.write(this.address, ADS1015_REG_POINTER_LOWTHRESH, Buffer.from(bytes), (err) => {
+                this.i2c.readI2cBlock(this.address, ADS1015_REG_POINTER_LOWTHRESH, 2, Buffer.from(bytes), (err) => {
                     /* istanbul ignore if: i2c communication issues out of scope */
                     if (err) {
                         next(new Error('Failed to write low threshold register to ADS1x15:' + err.toString()));
@@ -469,7 +470,7 @@ class ADS1x15 {
      * @private
      */
     _getLastResult(pga, callback) {
-        this.i2c.read(this.address, ADS1015_REG_POINTER_CONVERT, 2, (err, bytes) => {
+        this.i2c.readI2cBlock(this.address, ADS1015_REG_POINTER_CONVERT, 2, Buffer.from(bytes), (err, bytes) => {
             /* istanbul ignore if: i2c communication issues out of scope */
             if (err) {
                 // noinspection JSCheckFunctionSignatures
